@@ -22,7 +22,7 @@ if __name__=='__main__':
     label_dict['55997183'] = '董明'
     label_dict['55997284'] = '孙皓'
     # label_dict['55997284'] = '孙皓'
-    
+
     id_label_dict_fpath = './id_label_dict.json'
     with open(id_label_dict_fpath, 'w', encoding='utf-8') as f:
         json.dump(label_dict, f, ensure_ascii=False)
