@@ -5,7 +5,7 @@ from data_prepare.crnn_dataset import CrnnDataSet
 from data_prepare import load_tf_data
 import crnn_train
 
-def my_input_fn(data_dir='/data/data/crnn_tfrecords',
+def my_input_fn(data_dir='/data/data/tfrecords',
                 subset='Train',
                 num_shards=0,
                 batch_size=4,

@@ -9,6 +9,8 @@
 Set some global configuration
 """
 from easydict import EasyDict as edict
+import hparams
+_hparams = hparams.HParams()
 
 __C = edict()
 # Consumers can get config by: from config import cfg
@@ -41,7 +43,7 @@ __C.TRAIN.LR_DECAY_STEPS = 2
 # Set the learning rate decay rate
 __C.TRAIN.LR_DECAY_RATE = 0.5
 # Set the class numbers
-__C.TRAIN.CLASSES_NUMS = 16
+__C.TRAIN.CLASSES_NUMS = _hparams.class_nums
 # Set the validation step
 __C.TRAIN.VAL_STEP = 1
 # Set the resize width 

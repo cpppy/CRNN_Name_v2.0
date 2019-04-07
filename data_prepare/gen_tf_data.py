@@ -150,9 +150,9 @@ def gen_tfrecords(img_dir, json_fpath, batch_size, save_dir, data_type):
 
 def main():
 
-    img_dir = '/data/data/crnn_train_data/images'
-    train_json_path = '/data/data/crnn_train_data/labels/train.json'
-    val_json_path = '/data/data/crnn_train_data/labels/val.json'
+    img_dir = '/data/data/ticket_train_data/images'
+    train_json_path = '/data/data/ticket_train_data/labels/train.json'
+    val_json_path = '/data/data/ticket_train_data/labels/val.json'
     batch_size = 8
     save_dir = '/data/data/crnn_tfrecords'
     if not os.path.exists(save_dir):

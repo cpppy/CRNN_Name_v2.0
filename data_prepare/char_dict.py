@@ -1,7 +1,8 @@
 
-
+import hparams
+_hparams = hparams.HParams()
 # load char_dict
-key_path = '/data/CRNN_Ticket_v1.06/key/keys.txt'
+key_path = _hparams.key_fpath #'/data/CRNN_Name_v2.0/key/keys.txt'
 char_to_int = {}
 int_to_char = {}
 with open(key_path, 'r', encoding='utf-8') as key_f:

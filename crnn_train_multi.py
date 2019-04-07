@@ -122,7 +122,7 @@ def main():
     run_config = tf.estimator.RunConfig(session_config=sess_config,
                                         save_checkpoints_steps=10,
                                         keep_checkpoint_max=3,
-                                        model_dir='/data/output/crnn_name_v1.0')
+                                        model_dir='/data/output/crnn_name_ckp')
 
     # model_fn = my_model_fn(num_gpus=0)
     _hparams = hparams.HParams()
@@ -202,23 +202,26 @@ def train():
     # model_fn = my_model_fn(num_gpus=0)
     _hparams = hparams.HParams()
 
-    variable_strategy = 'CPU'
-    num_gpus = 0
+    # variable_strategy = 'CPU'
+    # num_gpus = 0
     estimator = tf.estimator.Estimator(
-        model_fn=get_shadownet_fn(num_gpus,
-                                  variable_strategy,
-                                  1),
+        model_fn=my_model_fn,
         config=run_config,
         params=_hparams, )
 
+    data_dir = _hparams.tfrecord_dir
     BATCH_SIZE = _hparams.batch_size  # 16
     # EPOCHS = 5
     STEPS = _hparams.steps  # 2000
 
-    train_spec = tf.estimator.TrainSpec(input_fn=lambda: crnn_estimator.my_input_fn(batch_size=BATCH_SIZE),
+    train_spec = tf.estimator.TrainSpec(input_fn=lambda: crnn_estimator.my_input_fn(data_dir=data_dir,
+                                                                                    subset='train',
+                                                                                    batch_size=BATCH_SIZE),
                                         max_steps=STEPS)
 
-    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: crnn_estimator.my_input_fn(batch_size=BATCH_SIZE),
+    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: crnn_estimator.my_input_fn(data_dir=data_dir,
+                                                                                  subset='val',
+                                                                                  batch_size=BATCH_SIZE),
                                       steps=1,
                                       start_delay_secs=1)
 

@@ -197,15 +197,18 @@ def main():
         config=run_config,
         params=_hparams, )
 
+    data_dir = _hparams.tfrecord_dir
     BATCH_SIZE = _hparams.batch_size  # 16
-    EPOCHS = 5
+    # EPOCHS = 5
     STEPS = _hparams.steps  # 2000
 
-    train_spec = tf.estimator.TrainSpec(input_fn=lambda: crnn_estimator.my_input_fn(subset='train',
+    train_spec = tf.estimator.TrainSpec(input_fn=lambda: crnn_estimator.my_input_fn(data_dir=data_dir,
+                                                                                    subset='train',
                                                                                     batch_size=BATCH_SIZE),
                                         max_steps=STEPS)
 
-    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: crnn_estimator.my_input_fn(subset='val',
+    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: crnn_estimator.my_input_fn(data_dir=data_dir,
+                                                                                  subset='val',
                                                                                   batch_size=BATCH_SIZE),
                                       steps=1,
                                       start_delay_secs=1)
