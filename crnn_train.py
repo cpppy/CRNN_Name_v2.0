@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 from crnn_model import crnn_model
 from global_configuration import config
-import crnn_estimator
+import define_input_fn
 import hparams
 from data_prepare import char_dict, load_tf_data
 
@@ -76,12 +76,25 @@ def my_model_fn(features, labels, mode, params):
         tensors_to_log = {'global_step': global_step, 'loss': loss}
         logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=1)
         train_hooks = [logging_hook]
-        predictions = None
+        # predictions = None
+        # bs = features.get_shape
+        decoded, log_prob = tf.nn.ctc_beam_search_decoder(preds,
+                                                          seq_len * np.ones(1),  # TODO
+                                                          merge_repeated=False)
+        # decoded, log_prob = tf.nn.ctc_greedy_decoder(preds,
+        #                                              seq_len * np.ones(1),  # TODO
+        #                                              merge_repeated=False)
+        # predictions = tf.sparse_to_dense(tf.to_int32(decoded[0].indices),
+        #                                  tf.to_int32(decoded[0].dense_shape),
+        #                                  tf.to_int32(decoded[0].values),
+        #                                  name="output")
+        predictions = tf.sparse.to_dense(sp_input=decoded[0], name='output')
 
     elif mode == tf.estimator.ModeKeys.EVAL:
         predictions = None
         optimizer = None
         train_hooks = None
+        # predictions = None
     elif mode == tf.estimator.ModeKeys.PREDICT:
         # bs = features.get_shape
         decoded, log_prob = tf.nn.ctc_beam_search_decoder(preds,
@@ -197,19 +210,26 @@ def main():
         config=run_config,
         params=_hparams, )
 
+    # add metrics
+    def my_acc(labels, predictions):
+        acc = tf.metrics.accuracy(labels=labels, predictions=predictions)
+        return {'acc': acc}
+
+    estimator = tf.contrib.estimator.add_metrics(estimator, my_acc)
+
     data_dir = _hparams.tfrecord_dir
     BATCH_SIZE = _hparams.batch_size  # 16
     # EPOCHS = 5
     STEPS = _hparams.steps  # 2000
 
-    train_spec = tf.estimator.TrainSpec(input_fn=lambda: crnn_estimator.my_input_fn(data_dir=data_dir,
-                                                                                    subset='train',
-                                                                                    batch_size=BATCH_SIZE),
+    train_spec = tf.estimator.TrainSpec(input_fn=lambda: define_input_fn.my_input_fn(data_dir=data_dir,
+                                                                                     subset='train',
+                                                                                     batch_size=BATCH_SIZE),
                                         max_steps=STEPS)
 
-    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: crnn_estimator.my_input_fn(data_dir=data_dir,
-                                                                                  subset='val',
-                                                                                  batch_size=BATCH_SIZE),
+    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: define_input_fn.my_input_fn(data_dir=data_dir,
+                                                                                   subset='val',
+                                                                                   batch_size=BATCH_SIZE),
                                       steps=1,
                                       start_delay_secs=1)
 
@@ -219,7 +239,7 @@ def main():
 
     print('ckp_path: ', estimator.latest_checkpoint())
 
-    predictions = estimator.predict(input_fn=lambda: crnn_estimator.my_input_fn(batch_size=1),
+    predictions = estimator.predict(input_fn=lambda: define_input_fn.my_input_fn(batch_size=1),
                                     yield_single_examples=True)
 
     # pred_result = load_tf_data.sparse_tensor_to_str(next(predictions))
@@ -228,22 +248,6 @@ def main():
     int_to_char = load_tf_data.char_dict.int_to_char
     pred_res_str = ''.join([int_to_char[int] for int in pred_res_num])
     print('prediction: ', pred_res_str)
-
-    # result = load_tf_data.sparse_tensor_to_str(next(predictions))
-    # print(result)
-    # next(p1)
-    # curr_pred = predictions.__next__()
-    # print(curr_pred.shape)
-    # int_to_char = char_dict.int_to_char
-    # pred_result = ''
-    # for row in curr_pred:
-    #     arr = row[0]
-    #     print('arr: ', arr)
-    # pred_result += int_to_char[np.argmax(arr)]
-    # print(pred_result)
-
-    # for i in range(2000):
-    #     print(predictions.__next__().shape)
 
 
 if __name__ == '__main__':

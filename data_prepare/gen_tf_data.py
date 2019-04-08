@@ -6,6 +6,7 @@ import cv2
 import math
 import numpy as np
 from data_prepare import char_dict
+import hparams
 
 # # load char_dict
 # key_path = '/data/CRNN_Ticket_v1.06/key/keys.txt'
@@ -150,11 +151,13 @@ def gen_tfrecords(img_dir, json_fpath, batch_size, save_dir, data_type):
 
 def main():
 
+    _hparams = hparams.HParams()
+
     img_dir = '/data/data/ticket_train_data/images'
     train_json_path = '/data/data/ticket_train_data/labels/train.json'
     val_json_path = '/data/data/ticket_train_data/labels/val.json'
     batch_size = 8
-    save_dir = '/data/data/crnn_tfrecords'
+    save_dir = _hparams.tfrecord_dir
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
     # train_data

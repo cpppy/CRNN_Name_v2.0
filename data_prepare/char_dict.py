@@ -10,4 +10,4 @@ with open(key_path, 'r', encoding='utf-8') as key_f:
     for idx, char in enumerate(chars):
         char_to_int[char] = idx
         int_to_char[idx] = char
-    num_classes = len(chars) + 1
+    num_classes = len(chars)

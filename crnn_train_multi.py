@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 from crnn_model import crnn_model
 from global_configuration import config
-import crnn_estimator
+import define_input_fn
 import hparams
 from data_prepare import char_dict, load_tf_data
 
@@ -71,6 +71,9 @@ def my_model_fn(features, labels, mode, params):
         #                                            params.decay_rate)
         # TODO: optimizer
         optimizer = tf.train.AdadeltaOptimizer().minimize(loss, global_step=global_step)
+        tf.train.RMSPropOptimizer()
+        tf.train.AdamOptimizer()
+        tf.train.AdagradOptimizer()
         # log define
         tensors_to_log = {'global_step': global_step, 'loss': loss}
         logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=1)
@@ -138,16 +141,16 @@ def main():
     # EPOCHS = 5
     STEPS = _hparams.steps  # 2000
 
-    tfrecord_dir = '/data/data/tfrecords'
+    tfrecord_dir = _hparams.tfrecord_dir
 
-    train_spec = tf.estimator.TrainSpec(input_fn=lambda: crnn_estimator.my_input_fn(data_dir=tfrecord_dir,
-                                                                                    subset='train',
-                                                                                    batch_size=BATCH_SIZE),
+    train_spec = tf.estimator.TrainSpec(input_fn=lambda: define_input_fn.my_input_fn(data_dir=tfrecord_dir,
+                                                                                     subset='train',
+                                                                                     batch_size=BATCH_SIZE),
                                         max_steps=STEPS)
 
-    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: crnn_estimator.my_input_fn(data_dir=tfrecord_dir,
-                                                                                  subset='val',
-                                                                                  batch_size=BATCH_SIZE),
+    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: define_input_fn.my_input_fn(data_dir=tfrecord_dir,
+                                                                                   subset='val',
+                                                                                   batch_size=BATCH_SIZE),
                                       steps=1,
                                       start_delay_secs=1)
 
@@ -214,14 +217,14 @@ def train():
     # EPOCHS = 5
     STEPS = _hparams.steps  # 2000
 
-    train_spec = tf.estimator.TrainSpec(input_fn=lambda: crnn_estimator.my_input_fn(data_dir=data_dir,
-                                                                                    subset='train',
-                                                                                    batch_size=BATCH_SIZE),
+    train_spec = tf.estimator.TrainSpec(input_fn=lambda: define_input_fn.my_input_fn(data_dir=data_dir,
+                                                                                     subset='train',
+                                                                                     batch_size=BATCH_SIZE),
                                         max_steps=STEPS)
 
-    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: crnn_estimator.my_input_fn(data_dir=data_dir,
-                                                                                  subset='val',
-                                                                                  batch_size=BATCH_SIZE),
+    eval_spec = tf.estimator.EvalSpec(input_fn=lambda: define_input_fn.my_input_fn(data_dir=data_dir,
+                                                                                   subset='val',
+                                                                                   batch_size=BATCH_SIZE),
                                       steps=1,
                                       start_delay_secs=1)
 
